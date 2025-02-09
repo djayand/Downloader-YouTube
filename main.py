@@ -1,8 +1,7 @@
 import os
 import yt_dlp
 
-import curses  # Pour la navigation interactive sur Linux/macOS
-import keyboard  # Alternative pour Windows
+import curses  # Pour la navigation interactive
 
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
