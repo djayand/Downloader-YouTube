@@ -1,3 +1,5 @@
-mutagen
 yt-dlp
+mutagen
 pillow
+keyboard
+windows-curses
