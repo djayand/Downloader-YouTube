@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloader YouTube</title>
+</head>
+<body>
+    <h1>Downloader YouTube</h1>
+    <form method="POST">
+        <label for="url">Entrez l'URL YouTube :</label>
+        <input type="text" name="url" required>
+        <label for="format">Format :</label>
+        <select name="format">
+            <option value="mp3">MP3</option>
+            <option value="mp4">MP4</option>
+        </select>
+        <button type="submit">Télécharger</button>
+    </form>
+    {% if success %}
+        <p>Téléchargement réussi : <a href="downloads/{{ file }}">{{ file }}</a></p>
+    {% endif %}
+    
+    <!-- Section publicité -->
+    <div style="margin-top: 20px; padding: 10px; background-color: #f4f4f4; text-align: center;">
+        <p>📢 Publicité 📢</p>
+        <p><a href="https://www.example.com" target="_blank">Cliquez ici pour une offre spéciale !</a></p>
+    </div>
+</body>
+</html>
