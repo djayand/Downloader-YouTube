@@ -49,29 +49,40 @@
         button:hover {
             background-color: #cc0000;
         }
-        .ad-section {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border-radius: 5px;
-        }
-        .download-link {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #4CAF50;
+        .error-message {
+            background-color: #ff4c4c;
             color: white;
-            font-weight: bold;
+            padding: 10px;
             border-radius: 5px;
-            display: inline-block;
-        }
-        .download-link:hover {
-            background-color: #45a049;
+            display: none;
+            margin-top: 10px;
         }
     </style>
+    <script>
+        function showError(message) {
+            const errorBox = document.getElementById('error-box');
+            errorBox.textContent = message;
+            errorBox.style.display = 'block';
+            setTimeout(() => {
+                errorBox.style.display = 'none';
+            }, 5000);
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Downloader YouTube</h1>
+        
+        <div id="error-box" class="error-message"></div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <script>
+                    showError("{{ messages[0] }}");
+                </script>
+            {% endif %}
+        {% endwith %}
+
         <form method="POST">
             <label for="url">Entrez l'URL YouTube :</label>
             <input type="text" name="url" required>
@@ -82,15 +93,6 @@
             </select>
             <button type="submit">📥 Télécharger</button>
         </form>
-        
-        {% if success %}
-            <p class="download-link">✅ Téléchargement réussi : <a href="{{ file }}" download>{{ file }}</a></p>
-        {% endif %}
-        
-        <div class="ad-section">
-            <p>📢 Publicité 📢</p>
-            <p><a href="https://www.example.com" target="_blank">Cliquez ici pour une offre spéciale !</a></p>
-        </div>
     </div>
 </body>
 </html>
