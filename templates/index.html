@@ -1,31 +1,96 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Downloader YouTube</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input, select, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input, select {
+            background: #f8f8f8;
+        }
+        button {
+            background-color: #ff4c4c;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        .ad-section {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+        }
+        .download-link {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .download-link:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Downloader YouTube</h1>
-    <form method="POST">
-        <label for="url">Entrez l'URL YouTube :</label>
-        <input type="text" name="url" required>
-        <label for="format">Format :</label>
-        <select name="format">
-            <option value="mp3">MP3</option>
-            <option value="mp4">MP4</option>
-        </select>
-        <button type="submit">Télécharger</button>
-    </form>
-    {% if success %}
-        <p>Téléchargement réussi : <a href="downloads/{{ file }}">{{ file }}</a></p>
-    {% endif %}
-    
-    <!-- Section publicité -->
-    <div style="margin-top: 20px; padding: 10px; background-color: #f4f4f4; text-align: center;">
-        <p>📢 Publicité 📢</p>
-        <p><a href="https://www.example.com" target="_blank">Cliquez ici pour une offre spéciale !</a></p>
+    <div class="container">
+        <h1>Downloader YouTube</h1>
+        <form method="POST">
+            <label for="url">Entrez l'URL YouTube :</label>
+            <input type="text" name="url" required>
+            <label for="format">Format :</label>
+            <select name="format">
+                <option value="mp3">MP3</option>
+                <option value="mp4">MP4</option>
+            </select>
+            <button type="submit">📥 Télécharger</button>
+        </form>
+        
+        {% if success %}
+            <p class="download-link">✅ Téléchargement réussi : <a href="{{ file }}" download>{{ file }}</a></p>
+        {% endif %}
+        
+        <div class="ad-section">
+            <p>📢 Publicité 📢</p>
+            <p><a href="https://www.example.com" target="_blank">Cliquez ici pour une offre spéciale !</a></p>
+        </div>
     </div>
 </body>
 </html>
