@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_file
 import yt_dlp
 import os
 from mutagen.mp3 import MP3
@@ -7,13 +7,9 @@ from PIL import Image
 
 app = Flask(__name__)
 
-# Dossier de téléchargement
-DOWNLOAD_FOLDER = "downloads"
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-
 # Fonction de téléchargement
 def download_youtube(url, output_format):
-    output_template = os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s")
+    output_template = "%(title)s.%(ext)s"
     ydl_opts = {
         "outtmpl": output_template,
         "quiet": False
@@ -38,7 +34,7 @@ def download_youtube(url, output_format):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(url, download=True)
         title = info_dict.get('title', 'unknown')
-        return os.path.join(DOWNLOAD_FOLDER, f"{title}.{output_format}")
+        return f"{title}.{output_format}"
 
 # Ajout de l'album art
 def add_album_art(mp3_file: str, thumbnail_file: str):
@@ -73,7 +69,7 @@ def index():
             if format_choice == "mp3":
                 thumbnail_file = downloaded_file.replace(".mp3", ".jpg")
                 add_album_art(downloaded_file, thumbnail_file)
-            return render_template('index.html', success=True, file=downloaded_file)
+            return send_file(downloaded_file, as_attachment=True)
     return render_template('index.html', success=False)
 
 if __name__ == "__main__":
