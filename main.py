@@ -1,7 +1,6 @@
 import yt_dlp
 import os
 import re
-import shutil
 import logging
 
 from flask import Flask, request, render_template, send_file, flash
