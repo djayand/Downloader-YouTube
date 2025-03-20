@@ -107,10 +107,11 @@ def index():
 
 @app.route('/download')
 def download():
-    """ Envoie le fichier à l'utilisateur. """
+    """ Envoie le fichier à l'utilisateur et supprime l'entrée session après téléchargement. """
     file_path = session.get('download_file')
-    
+
     if file_path and os.path.isfile(file_path):
+        session.pop('download_file', None)  # Nettoyer la session après téléchargement
         return send_file(file_path, as_attachment=True)
 
     flash("Erreur : Le fichier n'est plus disponible.", "error")

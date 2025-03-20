@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
             margin: 0;
             padding: 0;
         }
+
         .container {
             max-width: 600px;
             margin: 50px auto;
@@ -20,15 +22,20 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             color: #333;
         }
+
         form {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        input, select, button {
+
+        input,
+        select,
+        button {
             width: 80%;
             padding: 10px;
             margin: 10px 0;
@@ -36,9 +43,12 @@
             border-radius: 5px;
             font-size: 16px;
         }
-        input, select {
+
+        input,
+        select {
             background: #f8f8f8;
         }
+
         button {
             background-color: #ff4c4c;
             color: white;
@@ -46,9 +56,11 @@
             cursor: pointer;
             transition: 0.3s;
         }
+
         button:hover {
             background-color: #cc0000;
         }
+
         .message {
             padding: 10px;
             border-radius: 5px;
@@ -57,14 +69,17 @@
             margin-left: auto;
             margin-right: auto;
         }
+
         .error {
             background-color: #ff4c4c;
             color: white;
         }
+
         .success {
             background-color: #4caf50;
             color: white;
         }
+
         .alert-container {
             margin-top: 20px;
         }
@@ -81,14 +96,22 @@
             }
         }
 
-        window.onload = function() {
+        window.onload = function () {
             const downloadUrl = "{{ url_for('download') }}";
-            if (downloadUrl && {{ 'true' if download_file else 'false' }}) {
-                window.location.href = downloadUrl;
+            const hasFile = "{{ session.get('download_file', '') }}" !== "";
+
+            if (downloadUrl && hasFile) {
+                sessionStorage.setItem("download_started", "true");  // Marquer le téléchargement comme lancé
+
+                if (!sessionStorage.getItem("download_completed")) {
+                    window.location.href = downloadUrl;
+                }
             }
         }
+
     </script>
 </head>
+
 <body>
     <div class="container">
         <h1>Downloader YouTube</h1>
@@ -103,18 +126,19 @@
             <button type="submit">📥 Télécharger</button>
         </form>
     </div>
-    
+
     <div class="alert-container">
         <div id="error-box" class="message error" style="display:none;"></div>
         <div id="success-box" class="message success" style="display:none;"></div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=True) %}
-        {% for category, message in messages %}
-            <script>
-                showMessage("{{ message }}", "{{ category }}");
-            </script>
-        {% endfor %}
+    {% for category, message in messages %}
+    <script>
+        showMessage("{{ message }}", "{{ category }}");
+    </script>
+    {% endfor %}
     {% endwith %}
 </body>
+
 </html>
