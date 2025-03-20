@@ -49,23 +49,44 @@
         button:hover {
             background-color: #cc0000;
         }
-        .error-message {
-            background-color: #ff4c4c;
-            color: white;
+        .message {
             padding: 10px;
             border-radius: 5px;
-            display: none;
             margin-top: 10px;
+            display: none;
+        }
+        .error {
+            background-color: #ff4c4c;
+            color: white;
+        }
+        .success {
+            background-color: #4caf50;
+            color: white;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
         }
     </style>
     <script>
-        function showError(message) {
-            const errorBox = document.getElementById('error-box');
-            errorBox.textContent = message;
-            errorBox.style.display = 'block';
-            setTimeout(() => {
-                errorBox.style.display = 'none';
-            }, 5000);
+        function showMessage(message, type) {
+            const messageBox = document.getElementById(type + '-box');
+            if (messageBox) {
+                messageBox.textContent = message;
+                messageBox.style.display = 'block';
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 5000);
+            }
         }
     </script>
 </head>
@@ -73,16 +94,24 @@
     <div class="container">
         <h1>Downloader YouTube</h1>
         
-        <div id="error-box" class="error-message"></div>
+        <div id="error-box" class="message error"></div>
+        <div id="success-box" class="message success"></div>
         
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% for category, message in messages %}
                 <script>
-                    showError("{{ messages[0] }}");
+                    showMessage("{{ message }}", "{{ category }}");
                 </script>
-            {% endif %}
+            {% endfor %}
         {% endwith %}
-
+        
+        {% if download_file %}
+            <div class="success">
+                <p>Fichier prêt !</p>
+                <a href="{{ url_for('download') }}" class="download-btn">📥 Télécharger</a>
+            </div>
+        {% endif %}
+        
         <form method="POST">
             <label for="url">Entrez l'URL YouTube :</label>
             <input type="text" name="url" required>
