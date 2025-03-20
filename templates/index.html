@@ -5,111 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Downloader YouTube</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f0f5;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input,
-        select,
-        button {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        input,
-        select {
-            background: #f8f8f8;
-        }
-
-        button {
-            background-color: #ff4c4c;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
-
-        .message {
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .error {
-            background-color: #ff4c4c;
-            color: white;
-        }
-
-        .success {
-            background-color: #4caf50;
-            color: white;
-        }
-
-        .alert-container {
-            margin-top: 20px;
-        }
-    </style>
-    <script>
-        function showMessage(message, type) {
-            const messageBox = document.getElementById(type + '-box');
-            if (messageBox) {
-                messageBox.textContent = message;
-                messageBox.style.display = 'block';
-                setTimeout(() => {
-                    messageBox.style.display = 'none';
-                }, 5000);
-            }
-        }
-
-        window.onload = function () {
-            const downloadUrl = "{{ url_for('download') }}";
-            const hasFile = "{{ session.get('download_file', '') }}" !== "";
-
-            if (downloadUrl && hasFile) {
-                sessionStorage.setItem("download_started", "true");  // Marquer le téléchargement comme lancé
-
-                if (!sessionStorage.getItem("download_completed")) {
-                    window.location.href = downloadUrl;
-                }
-            }
-        }
-
-    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
 <body>
@@ -139,6 +35,11 @@
     </script>
     {% endfor %}
     {% endwith %}
+
+    <input type="hidden" id="download-url" value="{{ url_for('download') }}">
+    <input type="hidden" id="has-file" value="{{ 'true' if session.get('download_file') else 'false' }}">
+    
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 
 </html>
