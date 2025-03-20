@@ -4,41 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Downloader YouTube</title>
+    <title>🎥 Downloader YouTube</title>
+
+    <!-- Styles CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
 <body>
+
+    <!-- Conteneur principal -->
     <div class="container">
         <h1>Downloader YouTube</h1>
+
+        <!-- Formulaire de téléchargement -->
         <form method="POST">
             <label for="url">Entrez l'URL YouTube :</label>
             <input type="text" name="url" required>
+
             <label for="format">Format :</label>
             <select name="format">
                 <option value="mp3">MP3</option>
                 <option value="mp4">MP4</option>
             </select>
+
             <button type="submit">📥 Télécharger</button>
         </form>
     </div>
 
+    <!-- Conteneur pour afficher les messages d'erreur ou de succès -->
     <div class="alert-container">
         <div id="error-box" class="message error" style="display:none;"></div>
         <div id="success-box" class="message success" style="display:none;"></div>
     </div>
 
+    <!-- Gestion des messages Flask (erreur ou succès) -->
     {% with messages = get_flashed_messages(with_categories=True) %}
-    {% for category, message in messages %}
+    {% if messages %}
     <script>
+        {% for category, message in messages %}
         showMessage("{{ message }}", "{{ category }}");
+        {% endfor %}
     </script>
-    {% endfor %}
+    {% endif %}
     {% endwith %}
 
+    <!-- Import JS + Hidden pour le fonctionnement du script -->
     <input type="hidden" id="download-url" value="{{ url_for('download') }}">
     <input type="hidden" id="has-file" value="{{ 'true' if session.get('download_file') else 'false' }}">
-    
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 
