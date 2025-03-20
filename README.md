@@ -1,11 +1,11 @@
 # Downloader-YouTube 🎵🎥
 
-A Python tool that allows downloading videos and audio from YouTube in various qualities and formats (MP4, MP3, etc.).
-Supports thumbnail embedding for MP3 files and includes an interactive menu for a better user experience.
+A Python-based web application that allows downloading YouTube videos and audio in various formats (MP4, MP3, etc.).
+There is a clean and simple web interface for an improved user experience.
 
 ✅ Download videos in MP4 (best available quality)
 ✅ Download audio in MP3 (192 kbps) with embedded thumbnail
-✅ Interactive menu with keyboard navigation (no need to type commands)
+✅ Simple and intuitive web interface
 
 # 📥 Installation
 
@@ -30,15 +30,22 @@ FFmpeg is required for merging MP4 and converting MP3.
 
 # 🛠 Usage
 
-Run the script:
+Run the application:
 
 ```bash
 python main.py
 ```
 
-Use the arrow keys (↑ / ↓) to navigate the menu and Enter to select an option.
+Once running, open your browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000)
+
+Paste the YouTube URL, choose the format (MP3 or MP4), and download your file in one click!
 
 # 📝 Changelog
+
+## 0.0.3
+- Tree-structured code and files
+- Switched to a simple and clean web-based UI.
+- Improved user experience
 
 ## 0.0.2
 - Added a complete Readme file
@@ -46,8 +53,7 @@ Use the arrow keys (↑ / ↓) to navigate the menu and Enter to select an optio
 - Improved user experience
 
 ## 0.0.1
-- Initial working script
-- Requires manual FFmpeg integration
+- Created initial Python script that performs the download
 
 # 👤 Author
 

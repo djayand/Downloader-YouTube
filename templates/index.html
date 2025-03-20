@@ -39,13 +39,9 @@
 
     <!-- Gestion des messages Flask (erreur ou succès) -->
     {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages %}
-    <script>
-        {% for category, message in messages %}
-        showMessage("{{ message }}", "{{ category }}");
-        {% endfor %}
+    <script id="flash-messages" type="application/json">
+        {{ messages|tojson }}
     </script>
-    {% endif %}
     {% endwith %}
 
     <!-- Import JS + Hidden pour le fonctionnement du script -->
