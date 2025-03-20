@@ -24,7 +24,12 @@ def download_youtube(url: str, output_format: str) -> str:
     ydl_opts = {
         "outtmpl": output_template,
         "quiet": True,  # Réduit les logs pour améliorer la performance
-        "headers": {"User-Agent": "Mozilla/5.0"}
+        "format": "bestaudio/best" if output_format == "mp3" else "bestvideo+bestaudio",
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": "192"
+        }] if output_format == "mp3" else []
     }
     
     try:
@@ -32,8 +37,8 @@ def download_youtube(url: str, output_format: str) -> str:
             info_dict = ydl.extract_info(url, download=True)
             title = info_dict.get('title', 'unknown')
             clean_title = clean_filename(title)
-            file_path = os.path.join(DOWNLOAD_FOLDER, f"{clean_title}.{output_format}")
-            return file_path if os.path.exists(file_path) else None
+            file_path = os.path.join(DOWNLOAD_FOLDER, f"{clean_title}.mp3" if output_format == "mp3" else f"{clean_title}.mp4")
+            return file_path if os.path.isfile(file_path) else None
     except Exception as e:
         flash(f"Erreur de téléchargement : {str(e)}", "error")
         return None
@@ -66,7 +71,7 @@ def index():
         format_choice = request.form.get('format')
         if url:
             downloaded_file = download_youtube(url, format_choice)
-            if downloaded_file and os.path.exists(downloaded_file):
+            if downloaded_file and os.path.isfile(downloaded_file):
                 if format_choice == "mp3":
                     thumbnail_file = downloaded_file.replace(".mp3", ".jpg")
                     add_album_art(downloaded_file, thumbnail_file)
