@@ -53,7 +53,9 @@
             padding: 10px;
             border-radius: 5px;
             margin-top: 10px;
-            display: none;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .error {
             background-color: #ff4c4c;
@@ -63,18 +65,8 @@
             background-color: #4caf50;
             color: white;
         }
-        .download-btn {
-            display: inline-block;
-            background-color: #4caf50;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .download-btn:hover {
-            background-color: #45a049;
+        .alert-container {
+            margin-top: 20px;
         }
     </style>
     <script>
@@ -88,30 +80,18 @@
                 }, 5000);
             }
         }
+
+        window.onload = function() {
+            const downloadUrl = "{{ url_for('download') }}";
+            if (downloadUrl && {{ 'true' if download_file else 'false' }}) {
+                window.location.href = downloadUrl;
+            }
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Downloader YouTube</h1>
-        
-        <div id="error-box" class="message error"></div>
-        <div id="success-box" class="message success"></div>
-        
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% for category, message in messages %}
-                <script>
-                    showMessage("{{ message }}", "{{ category }}");
-                </script>
-            {% endfor %}
-        {% endwith %}
-        
-        {% if download_file %}
-            <div class="success">
-                <p>Fichier prêt !</p>
-                <a href="{{ url_for('download') }}" class="download-btn">📥 Télécharger</a>
-            </div>
-        {% endif %}
-        
         <form method="POST">
             <label for="url">Entrez l'URL YouTube :</label>
             <input type="text" name="url" required>
@@ -123,5 +103,18 @@
             <button type="submit">📥 Télécharger</button>
         </form>
     </div>
+    
+    <div class="alert-container">
+        <div id="error-box" class="message error" style="display:none;"></div>
+        <div id="success-box" class="message success" style="display:none;"></div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% for category, message in messages %}
+            <script>
+                showMessage("{{ message }}", "{{ category }}");
+            </script>
+        {% endfor %}
+    {% endwith %}
 </body>
 </html>
