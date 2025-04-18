@@ -18,7 +18,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 # Dossier temporaire de téléchargement
-DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "tmp")
+DOWNLOAD_FOLDER = os.getenv("FLASK_DOWNLOAD_FOLDER", "tmp")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 # Dictionnaire pour suivre l’état de chaque tâche (via AJAX)
