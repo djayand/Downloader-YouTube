@@ -9,21 +9,30 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
 from uuid import uuid4
 
-app = Flask(__name__)
-app.secret_key = "Z7mB4xQW2pF3vK8yL1tM9nC5dG6jR0sTQYHpVwXkJZDfNBtAqLmVgYCX2K78R5MJ"
+# Chargement automatique des variables d'environnement depuis .env
+from dotenv import load_dotenv
+load_dotenv()
 
-DOWNLOAD_FOLDER = "tmp"
+# Initialisation de l'application Flask
+app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
+# Dossier temporaire de téléchargement
+DOWNLOAD_FOLDER = os.getenv("DOWNLOAD_FOLDER", "tmp")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
-# Stock temporaire des statuts
+# Dictionnaire pour suivre l’état de chaque tâche (via AJAX)
 tasks_status = {}
 
+# === UTILS ===
+
 def is_valid_url(url: str) -> bool:
-    yt_regex = re.compile(r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$")
+    """Vérifie si l'URL fournie semble être une URL YouTube valide."""
+    yt_regex = re.compile(r"^(https?\:\/\/)?(www\\.youtube\\.com|youtu\\.?be)\\/.+$")
     return bool(yt_regex.match(url))
 
 def is_ffmpeg_installed() -> bool:
-    """ Vérifie si FFmpeg est installé et accessible. """
+    """Vérifie si FFmpeg est installé et accessible."""
     try:
         subprocess.run(["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         return True
@@ -31,11 +40,16 @@ def is_ffmpeg_installed() -> bool:
         return False
 
 def clean_filename(filename: str) -> str:
-    """ Nettoie un nom de fichier en supprimant les caractères interdits. """
-    return re.sub(r'[<>:"/\\|?*]', '_', filename)
+    """Nettoie un nom de fichier en supprimant les caractères interdits pour le système de fichiers."""
+    return re.sub(r'[<>:"/\\\\|?*]', '_', filename)
+
+# === TÉLÉCHARGEMENT ===
 
 def download_youtube(url: str, output_format: str) -> str:
-    """ Télécharge une vidéo YouTube et retourne son chemin local. """
+    """
+    Télécharge une vidéo YouTube dans le format demandé (mp3 ou mp4).
+    Retourne le chemin du fichier généré.
+    """
     if not is_ffmpeg_installed():
         return None
 
@@ -49,6 +63,7 @@ def download_youtube(url: str, output_format: str) -> str:
             "preferredquality": "192"
         }] if output_format == "mp3" else []
     }
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
@@ -58,10 +73,11 @@ def download_youtube(url: str, output_format: str) -> str:
         return None
 
 def add_album_art(mp3_file: str, thumbnail_file: str):
-    """ Ajoute une miniature au fichier MP3. """
-    if not os.path.exists(mp3_file):
-        return
-    if not os.path.exists(thumbnail_file):
+    """
+    Ajoute une miniature au fichier MP3 (image en couverture).
+    Ignore si l'image n’est pas présente.
+    """
+    if not os.path.exists(mp3_file) or not os.path.exists(thumbnail_file):
         return
     try:
         audio = MP3(mp3_file, ID3=ID3)
@@ -77,9 +93,14 @@ def add_album_art(mp3_file: str, thumbnail_file: str):
     except Exception:
         pass
 
+# === ROUTES ===
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    """ Gère la page d'accueil et le formulaire de téléchargement. """
+    """
+    Page d'accueil : formulaire + gestion POST pour le téléchargement.
+    Retourne un task_id au frontend pour le suivi du statut.
+    """
     if request.method == 'POST':
         task_id = str(uuid4())
         tasks_status[task_id] = {'status': 'processing', 'message': 'Téléchargement en cours...'}
@@ -95,6 +116,7 @@ def index():
         if downloaded_file and os.path.isfile(downloaded_file):
             if format_choice == "mp3":
                 add_album_art(downloaded_file, downloaded_file.replace(".mp3", ".jpg"))
+
             session['download_file'] = downloaded_file
             tasks_status[task_id] = {'status': 'success', 'message': "Fichier généré avec succès !"}
         else:
@@ -106,12 +128,19 @@ def index():
 
 @app.route('/status/<task_id>')
 def task_status(task_id):
+    """
+    Route de suivi de tâche (appelée par le frontend via AJAX).
+    Retourne l'état en temps réel.
+    """
     status = tasks_status.get(task_id, {'status': 'unknown', 'message': 'Tâche introuvable'})
     return jsonify(status)
 
 @app.route('/download')
 def download():
-    """ Envoie le fichier à l'utilisateur et supprime l'entrée session après téléchargement. """
+    """
+    Route qui fournit le fichier généré à l'utilisateur.
+    Supprime la référence du fichier de la session après envoi.
+    """
     file_path = session.get('download_file')
     if file_path and os.path.isfile(file_path):
         session.pop('download_file', None)
@@ -122,6 +151,9 @@ def download():
 
 @app.route('/clear')
 def clear():
+    """
+    Supprime tous les fichiers temporaires pour libérer l’espace disque.
+    """
     try:
         shutil.rmtree(DOWNLOAD_FOLDER)
         os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
