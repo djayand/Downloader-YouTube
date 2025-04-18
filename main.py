@@ -27,8 +27,10 @@ tasks_status = {}
 # === UTILS ===
 
 def is_valid_url(url: str) -> bool:
-    """Vérifie si l'URL fournie semble être une URL YouTube valide."""
-    yt_regex = re.compile(r"^(https?\:\/\/)?(www\\.youtube\\.com|youtu\\.?be)\\/.+$")
+    """Vérifie si l'URL semble être une URL YouTube valide (classique ou short)."""
+    yt_regex = re.compile(
+        r'^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$'
+    )
     return bool(yt_regex.match(url))
 
 def is_ffmpeg_installed() -> bool:
@@ -102,6 +104,9 @@ def index():
     Retourne un task_id au frontend pour le suivi du statut.
     """
     if request.method == 'POST':
+        print("Requête POST reçue")
+        print("URL :", request.form.get('url'))
+        print("Format :", request.form.get('format'))
         task_id = str(uuid4())
         tasks_status[task_id] = {'status': 'processing', 'message': 'Téléchargement en cours...'}
 
