@@ -1,13 +1,13 @@
-import yt_dlp
 import os
 import re
 import shutil
+import subprocess
+import yt_dlp
 
-from flask import Flask, request, render_template, send_file, flash, session, redirect, url_for
+from flask import Flask, request, render_template, send_file, flash, session, redirect, url_for, jsonify
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
-from PIL import Image
-import subprocess
+from uuid import uuid4
 
 app = Flask(__name__)
 app.secret_key = "Z7mB4xQW2pF3vK8yL1tM9nC5dG6jR0sTQYHpVwXkJZDfNBtAqLmVgYCX2K78R5MJ"
@@ -15,10 +15,11 @@ app.secret_key = "Z7mB4xQW2pF3vK8yL1tM9nC5dG6jR0sTQYHpVwXkJZDfNBtAqLmVgYCX2K78R5
 DOWNLOAD_FOLDER = "tmp"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
+# Stock temporaire des statuts
+tasks_status = {}
+
 def is_valid_url(url: str) -> bool:
-    """ Vérifie si l'URL fournie semble être une URL YouTube valide. """
-    yt_regex = re.compile(
-        r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$")
+    yt_regex = re.compile(r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$")
     return bool(yt_regex.match(url))
 
 def is_ffmpeg_installed() -> bool:
@@ -36,7 +37,6 @@ def clean_filename(filename: str) -> str:
 def download_youtube(url: str, output_format: str) -> str:
     """ Télécharge une vidéo YouTube et retourne son chemin local. """
     if not is_ffmpeg_installed():
-        flash("Erreur : FFmpeg n'est pas installé. Veuillez l'ajouter à votre système.", "error")
         return None
 
     ydl_opts = {
@@ -54,18 +54,15 @@ def download_youtube(url: str, output_format: str) -> str:
             info_dict = ydl.extract_info(url, download=True)
             title = clean_filename(info_dict.get('title', 'unknown'))
             return os.path.join(DOWNLOAD_FOLDER, f"{title}.{'mp3' if output_format == 'mp3' else 'mp4'}")
-    except Exception as e:
-        flash(f"Erreur de téléchargement : {str(e)}", "error")
+    except Exception:
         return None
 
 def add_album_art(mp3_file: str, thumbnail_file: str):
     """ Ajoute une miniature au fichier MP3. """
     if not os.path.exists(mp3_file):
-        flash("Erreur : Le fichier MP3 est introuvable.", "error")
         return
     if not os.path.exists(thumbnail_file):
-        return  # Pas d'image, mais le MP3 reste utilisable
-    
+        return
     try:
         audio = MP3(mp3_file, ID3=ID3)
         with open(thumbnail_file, "rb") as img_file:
@@ -77,41 +74,47 @@ def add_album_art(mp3_file: str, thumbnail_file: str):
                 data=img_file.read()
             ))
         audio.save()
-    except Exception as e:
-        flash(f"Erreur lors de l'ajout de la miniature : {str(e)}", "error")
+    except Exception:
+        pass
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """ Gère la page d'accueil et le formulaire de téléchargement. """
     if request.method == 'POST':
+        task_id = str(uuid4())
+        tasks_status[task_id] = {'status': 'processing', 'message': 'Téléchargement en cours...'}
+
         url = request.form.get('url')
         format_choice = request.form.get('format')
 
         if not url or not is_valid_url(url):
-            flash("Erreur : Veuillez entrer une URL YouTube valide.", "error")
-            return redirect(url_for('index'))
+            tasks_status[task_id] = {'status': 'error', 'message': "URL YouTube invalide."}
+            return jsonify({'task_id': task_id})
 
         downloaded_file = download_youtube(url, format_choice)
         if downloaded_file and os.path.isfile(downloaded_file):
             if format_choice == "mp3":
                 add_album_art(downloaded_file, downloaded_file.replace(".mp3", ".jpg"))
-            
             session['download_file'] = downloaded_file
-            flash("Fichier généré avec succès !", "success")
-            return redirect(url_for('index'))
+            tasks_status[task_id] = {'status': 'success', 'message': "Fichier généré avec succès !"}
         else:
-            flash("Erreur : Le fichier n'a pas pu être généré.", "error")
+            tasks_status[task_id] = {'status': 'error', 'message': "Le fichier n'a pas pu être généré."}
 
-    # Ne pas pop() pour éviter la perte du fichier avant le téléchargement
+        return jsonify({'task_id': task_id})
+
     return render_template('index.html', download_file=session.get('download_file'))
+
+@app.route('/status/<task_id>')
+def task_status(task_id):
+    status = tasks_status.get(task_id, {'status': 'unknown', 'message': 'Tâche introuvable'})
+    return jsonify(status)
 
 @app.route('/download')
 def download():
     """ Envoie le fichier à l'utilisateur et supprime l'entrée session après téléchargement. """
     file_path = session.get('download_file')
-
     if file_path and os.path.isfile(file_path):
-        session.pop('download_file', None)  # Nettoyer la session après téléchargement
+        session.pop('download_file', None)
         return send_file(file_path, as_attachment=True)
 
     flash("Erreur : Le fichier n'est plus disponible.", "error")
@@ -119,7 +122,6 @@ def download():
 
 @app.route('/clear')
 def clear():
-    """ Supprime les fichiers téléchargés pour éviter l'encombrement du serveur. """
     try:
         shutil.rmtree(DOWNLOAD_FOLDER)
         os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)

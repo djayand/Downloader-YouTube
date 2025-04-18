@@ -27,8 +27,16 @@
                 <option value="mp4">MP4</option>
             </select>
 
-            <button type="submit">📥 Télécharger</button>
+            <button type="submit">📅 Télécharger</button>
         </form>
+
+        <!-- Barre de progression -->
+        <div id="progress-bar" style="display:none; width: 80%; margin: 20px auto;">
+            <div style="width: 100%; background-color: #eee; border-radius: 10px;">
+                <div id="bar" style="width: 0%; height: 20px; background-color: #4caf50; border-radius: 10px;"></div>
+            </div>
+            <p id="progress-message" style="margin-top: 10px;">⏳ En attente...</p>
+        </div>
     </div>
 
     <!-- Conteneur pour afficher les messages d'erreur ou de succès -->
@@ -37,16 +45,18 @@
         <div id="success-box" class="message success" style="display:none;"></div>
     </div>
 
-    <!-- Gestion des messages Flask (erreur ou succès) -->
+    <!-- Messages Flask -->
     {% with messages = get_flashed_messages(with_categories=True) %}
     <script id="flash-messages" type="application/json">
         {{ messages|tojson }}
     </script>
     {% endwith %}
 
-    <!-- Import JS + Hidden pour le fonctionnement du script -->
+    <!-- Champs cachés pour le téléchargement -->
     <input type="hidden" id="download-url" value="{{ url_for('download') }}">
     <input type="hidden" id="has-file" value="{{ 'true' if session.get('download_file') else 'false' }}">
+
+    <!-- JS principal -->
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 

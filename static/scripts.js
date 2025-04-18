@@ -1,13 +1,50 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const messages = JSON.parse(document.getElementById("flash-messages").textContent || "[]");
-    messages.forEach(([type, message]) => showMessage(message, type));
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const url = form.querySelector("input[name='url']").value;
+        const format = form.querySelector("select[name='format']").value;
 
-    const hasFile = document.getElementById("has-file").value === "true";
-    if (hasFile && !sessionStorage.getItem("download_completed")) {
-        sessionStorage.setItem("download_completed", "true");
-        window.location.href = document.getElementById("download-url").value;
-    }
+        document.getElementById("progress-bar").style.display = "block";
+        document.getElementById("bar").style.width = "30%";
+        document.getElementById("progress-message").textContent = "⏳ Téléchargement en cours...";
+
+        fetch("/", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `url=${encodeURIComponent(url)}&format=${format}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.task_id) {
+                checkStatus(data.task_id);
+            }
+        });
+    });
 });
+
+function checkStatus(taskId) {
+    const interval = setInterval(() => {
+        fetch(`/status/${taskId}`)
+            .then(res => res.json())
+            .then(status => {
+                if (status.status === 'processing') {
+                    document.getElementById("bar").style.width = "60%";
+                    document.getElementById("progress-message").textContent = status.message;
+                } else {
+                    clearInterval(interval);
+                    document.getElementById("bar").style.width = "100%";
+                    document.getElementById("progress-message").textContent = status.message;
+
+                    showMessage(status.message, status.status);
+
+                    if (status.status === 'success') {
+                        setTimeout(() => window.location.href = document.getElementById("download-url").value, 2000);
+                    }
+                }
+            });
+    }, 1000);
+}
 
 function showMessage(message, type) {
     const messageBox = document.getElementById(type + '-box');
@@ -19,14 +56,3 @@ function showMessage(message, type) {
         }, 5000);
     }
 }
-
-window.onload = function () {
-    const downloadUrl = document.getElementById("download-url").value;
-    const hasFile = document.getElementById("has-file").value === "true";
-
-    // Vérifie si le téléchargement a déjà été lancé pour éviter la boucle infinie
-    if (hasFile && !sessionStorage.getItem("download_completed")) {
-        sessionStorage.setItem("download_started", "true");  // Marquer le téléchargement comme lancé
-        window.location.href = downloadUrl;
-    }
-};
