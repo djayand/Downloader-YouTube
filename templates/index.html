@@ -30,35 +30,33 @@
             <button type="submit">📅 Télécharger</button>
         </form>
 
-        <!-- Barre de progression -->
-        <div id="progress-bar" style="display:none; width: 80%; margin: 20px auto;">
-            <div style="width: 100%; background-color: #eee; border-radius: 10px;">
-                <div id="bar" style="width: 0%; height: 20px; background-color: #4caf50; border-radius: 10px;"></div>
+        <!-- Barre de progression + log -->
+        <div id="progress-bar">
+            <div class="progress-background">
+                <div id="bar"></div>
             </div>
-
-            <!-- Liste des étapes -->
-            <ul id="status-log" style="text-align:left; max-width:500px; margin: 10px auto; padding-left: 20px;"></ul>
+            <ul id="status-log"></ul>
         </div>
     </div>
 
-    <!-- Conteneur pour afficher les messages d'erreur ou de succès -->
+    <!-- Messages -->
     <div class="alert-container">
-        <div id="error-box" class="message error" style="display:none;"></div>
-        <div id="success-box" class="message success" style="display:none;"></div>
+        <div id="error-box" class="message error"></div>
+        <div id="success-box" class="message success"></div>
     </div>
 
-    <!-- Messages Flask -->
+    <!-- Flask messages -->
     {% with messages = get_flashed_messages(with_categories=True) %}
     <script id="flash-messages" type="application/json">
         {{ messages|tojson }}
     </script>
     {% endwith %}
 
-    <!-- Champs cachés pour le téléchargement -->
+    <!-- Champs cachés -->
     <input type="hidden" id="download-url" value="{{ url_for('download') }}">
     <input type="hidden" id="has-file" value="{{ 'true' if session.get('download_file') else 'false' }}">
 
-    <!-- JS principal -->
+    <!-- JS -->
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 

@@ -76,17 +76,46 @@ button:hover {
     margin-top: 20px;
 }
 
+/* 🔁 Barre de progression */
+#progress-bar {
+    display: none;
+    width: 80%;
+    margin: 20px auto;
+}
+
+.progress-background {
+    width: 100%;
+    background-color: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#bar {
+    width: 0%;
+    height: 20px;
+    background-color: #4caf50;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+/* 📝 Timeline des étapes */
 #status-log {
     font-size: 14px;
     color: #333;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 10px 15px;
+    padding: 12px 18px;
     margin-top: 15px;
-    list-style-type: "➡️ ";
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 500px;
+    list-style-type: none;
+    text-align: left;
 }
 
 #status-log li {
     margin-bottom: 6px;
+    padding-left: 10px;
+    text-indent: -10px;
 }
