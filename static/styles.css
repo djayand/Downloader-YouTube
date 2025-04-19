@@ -119,3 +119,7 @@ button:hover {
     padding-left: 10px;
     text-indent: -10px;
 }
+
+.hidden {
+    display: none !important;
+}

@@ -66,9 +66,9 @@ function showMessage(message, type) {
     const messageBox = document.getElementById(type + '-box');
     if (messageBox) {
         messageBox.textContent = message;
-        messageBox.style.display = 'block';
+        messageBox.classList.remove('hidden');
         setTimeout(() => {
-            messageBox.style.display = 'none';
+            messageBox.classList.add('hidden');
         }, 5000);
     }
 }
