@@ -39,7 +39,7 @@ def register_routes(app, download_folder):
                 callback("processing", "🖼 Ajout de la miniature MP3...")
                 add_album_art(downloaded_file, downloaded_file.replace(".mp3", ".jpg"), callback)
 
-            session['download_file'] = downloaded_file
+            tasks_status[task_id]['file_path'] = downloaded_file
             update_status(task_id, 'success', "✅ Fichier prêt au téléchargement !")
         else:
             update_status(task_id, 'error', "❌ Le fichier n'a pas pu être généré.")
@@ -91,7 +91,9 @@ def register_routes(app, download_folder):
         """
         Envoie le fichier généré à l'utilisateur et nettoie la session.
         """
-        file_path = session.get('download_file')
+        task_id = request.args.get("task_id")
+        file_path = tasks_status.get(task_id, {}).get('file_path')
+
         if file_path and os.path.isfile(file_path):
             session.pop('download_file', None)
             return send_file(file_path, as_attachment=True)

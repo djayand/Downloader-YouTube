@@ -53,7 +53,7 @@
     {% endwith %}
 
     <!-- Champs cachés -->
-    <input type="hidden" id="download-url" value="{{ url_for('download') }}">
+    <input type="hidden" id="download-url">
     <input type="hidden" id="has-file" value="{{ 'true' if session.get('download_file') else 'false' }}">
 
     <!-- JS -->

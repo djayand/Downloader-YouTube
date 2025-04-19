@@ -55,6 +55,7 @@ function checkStatus(taskId) {
                     showMessage(logList.at(-1), status.status);
 
                     if (status.status === 'success') {
+                        document.getElementById("download-url").value = `/download?task_id=${taskId}`;
                         setTimeout(() => window.location.href = document.getElementById("download-url").value, 2000);
                     }
                 }
