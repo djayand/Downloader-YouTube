@@ -40,6 +40,27 @@ Once running, open your browser and navigate to [http://127.0.0.1:5000](http://1
 
 Paste the YouTube URL, choose the format (MP3 or MP4), and download your file in one click!
 
+# 📁 Project Structure
+
+📁 Downloader-YouTube/
+│
+├── 📄 main.py                → Flask app initialization and config loading
+├── 📄 routes.py              → API routes and download task management
+├── 📄 utils.py               → Core utilities: download, validation, tagging
+│
+├── 📄 .env                   → Environment variables (secret key, paths)
+├── 📄 requirements.txt       → Project dependencies (Flask, yt-dlp, etc.)
+├── 📄 README.md              → Project documentation
+│
+├── 📂 templates/             → Server-rendered HTML files
+│   └── index.html            → Main frontend interface
+│
+├── 📂 static/                → Static frontend assets
+│   ├── styles.css            → App styling
+│   └── scripts.js            → Client-side logic (progress, status, messages)
+│
+└── 📂 tmp/                   → Temporary download storage (auto-created)
+
 # 📝 Changelog
 
 ## 0.0.3
