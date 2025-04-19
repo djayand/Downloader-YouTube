@@ -75,3 +75,18 @@ button:hover {
 .alert-container {
     margin-top: 20px;
 }
+
+#status-log {
+    font-size: 14px;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-top: 15px;
+    list-style-type: "➡️ ";
+}
+
+#status-log li {
+    margin-bottom: 6px;
+}

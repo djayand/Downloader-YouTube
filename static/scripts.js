@@ -6,8 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const format = form.querySelector("select[name='format']").value;
 
         document.getElementById("progress-bar").style.display = "block";
-        document.getElementById("bar").style.width = "30%";
-        document.getElementById("progress-message").textContent = "⏳ Téléchargement en cours...";
+        document.getElementById("bar").style.width = "0%";
+
+        // Réinitialiser la timeline
+        document.getElementById("status-log").innerHTML = "";
 
         fetch("/", {
             method: "POST",
@@ -24,19 +26,33 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function checkStatus(taskId) {
+    const logSet = new Set(); // éviter les doublons
+    const logContainer = document.getElementById("status-log");
+
     const interval = setInterval(() => {
         fetch(`/status/${taskId}`)
             .then(res => res.json())
             .then(status => {
-                if (status.status === 'processing') {
-                    document.getElementById("bar").style.width = "60%";
-                    document.getElementById("progress-message").textContent = status.message;
-                } else {
-                    clearInterval(interval);
-                    document.getElementById("bar").style.width = "100%";
-                    document.getElementById("progress-message").textContent = status.message;
+                const logList = status.log || [];
 
-                    showMessage(status.message, status.status);
+                // Ajouter tous les nouveaux messages
+                logList.forEach(msg => {
+                    if (!logSet.has(msg)) {
+                        const li = document.createElement("li");
+                        li.textContent = msg;
+                        logContainer.appendChild(li);
+                        logSet.add(msg);
+                    }
+                });
+
+                // Mise à jour de la barre : on suppose 6 étapes pour 100%
+                const percent = Math.min((logList.length / 6) * 100, 100);
+                document.getElementById("bar").style.width = percent + "%";
+
+                if (status.status !== 'processing') {
+                    clearInterval(interval);
+
+                    showMessage(logList.at(-1), status.status);
 
                     if (status.status === 'success') {
                         setTimeout(() => window.location.href = document.getElementById("download-url").value, 2000);
