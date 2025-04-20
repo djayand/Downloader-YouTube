@@ -63,6 +63,11 @@ Paste the YouTube URL, choose the format (MP3 or MP4), and download your file in
 
 # 📝 Changelog
 
+## 0.0.4
+- Refactored the code to be more modular  
+- Increased front-end/back-end communication
+- Enhanced security with .env configuration
+
 ## 0.0.3
 - Tree-structured code and files
 - Switched to a simple and clean web-based UI.
