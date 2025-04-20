@@ -1,6 +1,12 @@
 import os
+import logging
+
 from flask import Flask
 from dotenv import load_dotenv
+
+# Suppression des logs FLASK
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 # Chargement des variables d'environnement
 load_dotenv()
